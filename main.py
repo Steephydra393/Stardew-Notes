@@ -6,6 +6,8 @@ import uuid, re
 app = Flask(__name__)
 CORS(app)
 
+# Heh
+
 guildInfo = {"841474628614488086":{'year':'Year 1', 'season':'Summer'}}
 # guildInfo = {}
 notes = {}
