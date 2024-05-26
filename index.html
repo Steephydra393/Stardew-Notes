@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css"> 
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.snow.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script> 
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+  </head>
+  <body>
+    <div class="parent">
+        <div class="div2">
+          <div class="div2Topper">
+            <p class="logo">
+              STARDEW NOTES
+            </p>
+            <div class="yearDisplay" id="yearDisplay">
+              N/A
+            </div>
+            <div class="seasonDisplay" id="seasonDisplay">
+              N/A
+            </div>
+          </div>
+
+          <div class="button-row"> 
+            <button class="stardew-button" id="openThePopup">
+              <img src="icons/add.svg" alt="New Note" title="New Note">
+            </button>
+            <button class="stardew-button" id="refreshNotes">
+              <img src="icons/sync.svg" alt="Sync" title="Sync"> 
+            </button>
+            <button class="stardew-button" id="openDeleteAllButton">
+              <img src="icons/delete_forever.svg" alt="Delete All" title="Delete All"> 
+            </button>
+            <button class="stardew-button" id="openSettingsButton">
+              <img src="icons/settings.svg" alt="Settings" title="Settings"> 
+            </button>
+          </div>
+        </div>
+
+        <div class="div3" id="div3">
+          An error occured, Check console
+        </div>
+
+    </div>
+
+  <div id="popup" class="hidden">
+    <div id="quill-editor"></div>
+
+    <button id="submitText">DONE</button>
+
+    <select name="Bundle" id="bundle">
+      <option value="Spring Foraging Bundle">Spring Foraging Bundle</option>
+      <option value="Summer Foraging Bundle">Summer Foraging Bundle</option>
+      <option value="Fall Foraging Bundle">Fall Foraging Bundle</option>
+      <option value="Winter Foraging Bundle">Winter Foraging Bundle</option>
+      <option value="Construction Bundle">Construction Bundle</option>
+      <option value="Exotic Foraging Bundle">Exotic Foraging Bundle</option>
+      <option value="Spring Crops Bundle">Spring Crops Bundle</option>
+      <option value="Summer Crops Bundle">Summer Crops Bundle</option>
+      <option value="Fall Crops Bundle">Fall Crops Bundle</option>
+      <option value="Quality Crops Bundle">Quality Crops Bundle</option>
+      <option value="Animal Bundle">Animal Bundle</option>
+      <option value="Artisan Bundle">Artisan Bundle</option>
+      <option value="River Fish Bundle">River Fish Bundle</option>
+      <option value="Lake Fish Bundle">Lake Fish Bundle</option>
+      <option value="Ocean Fish Bundle">Ocean Fish Bundle</option>
+      <option value="Night Fishing Bundle">Night Fishing Bundle</option>
+      <option value="Crab Pot Bundle">Crab Pot Bundle</option>
+      <option value="Specialty Fish Bundle">Specialty Fish Bundle</option>
+      <option value="Blacksmith\'s Bundle">Blacksmith's Bundle</option>
+      <option value="Geologist\'s Bundle">Geologist's Bundle</option>
+      <option value="Adventurer\'s Bundle">Adventurer's Bundle</option>
+      
+    </select>    
+  </div>
+
+  <div id="deleteAll" class="delallhidden">
+    <strong>CLICKING YES WILL DELETE ALL NOTES</strong>
+    <button id="delAll">Im Sure</button>
+    <button id="noDelAll">Nevermind...</button>
+  </div>    
+
+  <div id="settings" class="settings">
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

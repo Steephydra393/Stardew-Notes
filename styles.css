@@ -1,0 +1,447 @@
+@import url('https://fonts.googleapis.com/css2?family=Dosis:wght@400;700&display=swap'); 
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+@font-face {
+    font-family: stardewValleyFont;
+    src: url(StardewValley.woff2);
+}
+
+.fira-sans-thin {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 100;
+    font-style: normal;
+}
+  
+.fira-sans-extralight {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 200;
+    font-style: normal;
+}
+
+.fira-sans-light {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.fira-sans-regular {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.fira-sans-medium {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+}
+
+.fira-sans-semibold {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 600;
+    font-style: normal;
+}
+
+.fira-sans-bold {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.fira-sans-extrabold {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 800;
+    font-style: normal;
+}
+
+.fira-sans-black {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+}
+
+.fira-sans-thin-italic {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 100;
+    font-style: italic;
+}
+
+.fira-sans-extralight-italic {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 200;
+    font-style: italic;
+}
+
+.fira-sans-light-italic {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 300;
+    font-style: italic;
+}
+
+.fira-sans-regular-italic {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 400;
+    font-style: italic;
+}
+
+.fira-sans-medium-italic {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 500;
+    font-style: italic;
+}
+
+.fira-sans-semibold-italic {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 600;
+    font-style: italic;
+}
+
+.fira-sans-bold-italic {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 700;
+    font-style: italic;
+}
+
+.fira-sans-extrabold-italic {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 800;
+    font-style: italic;
+}
+
+.fira-sans-black-italic {
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 900;
+    font-style: italic;
+}  
+
+:root {
+    --motion-ease: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+    --motion-duration: 0.3s;
+  }  
+
+html {
+    margin: 0px;
+    height: 100%;
+    width: 100%;
+    background-color: #131B16;
+}
+
+body {
+    margin: 0px;
+    min-height: 100%;
+    height: 100%;
+    width: 100%;
+ }
+
+.image {
+    max-width: 90%;   /* Image will never exceed its container's width */
+    height: auto;      /* Maintain aspect ratio */
+    overflow: hidden;
+  }
+  
+.parent {
+    display: grid;
+    grid-template-columns: 1fr repeat(3, 2fr); /* Wider rightmost columns */
+    grid-template-rows: 15% 2fr 1fr 1fr;   /* Taller second row */
+    grid-column-gap: 15px; /* Add space between columns */
+    grid-row-gap: 10px;   /* Add space between rows */
+    height: 100%;  /* Occupy the full height of its container */
+    width: 100%;   /* Occupy the full width of its container */
+    }
+      
+    .div2 {
+        background-color: transparent;
+        font-family: 'Dosis', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif; /* Dosis is now primary */
+        font-weight: 400;
+        font-size: 100%;
+        color:#F3D9E2;
+        background-color: #1A1315;
+        grid-area: 1 / 1 / 6 / 2; 
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border-radius: 30px;
+        margin: 10px;
+        box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
+        overflow-y: auto;
+        position: relative; /* Added to position the pseudo-element */
+        min-width: 180px;
+    }
+
+    .div3 { 
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        grid-auto-flow: row;
+        gap: 15px;
+        padding-left: 20px;
+        padding-top: 20px;
+        padding-right: 20px;
+        background-color: #131B16;
+        font-family: 'Dosis', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif; /* Dosis is now primary */
+        font-weight: 400;
+        border-radius: 25px 0px 0px 0px;
+        font-size: 35px;
+        color:#D9F3E4;
+        grid-area: 1 / 2 / 6 / 6; 
+        align-items: center;    /* Center vertically */
+        justify-content: center;/* Center horizontally */   
+        /* height: 100%;    */
+        overflow-y: scroll;
+        /* max-height: 100vh; */
+    }
+    .div3::-webkit-scrollbar {
+        width: 10px; /* Adjust width as desired */
+    }
+
+.stardew-button {
+    border: none;          /* Remove default button border */
+    background: none;      /* Make the background transparent */
+    padding: 5px;          /* Add some padding around the icon */
+    cursor: pointer;
+    z-index: 2;
+    background-color: #3b2c30;
+    border: none;          /* Remove default button border */
+    border-radius: 50%;    /* Create the circle shape */
+    width: 40px;           /* Adjust width as needed */
+    height: 40px;          /* Adjust height as needed */
+    display: inline-flex;  /* Center the content within the button */
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+    }
+    
+.stardew-button:hover {
+    background-color: #e49fad;  /* Slightly brighter on hover */
+    transform: scale(1.1);
+}
+    
+
+.hidden { display: none; }
+
+.delallhidden { display: none }
+
+#popup {
+    font-family: stardewValleyFont; /* Dosis is now primary */
+    font-weight: 300;
+    font-size: 25px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); 
+    z-index: 100; /* Ensure popup is on top */
+}
+
+#deleteAll {
+    font-family: stardewValleyFont; /* Dosis is now primary */
+    font-weight: 300;
+    font-size: 25px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); 
+    z-index: 100; /* Ensure popup is on top */
+}
+
+/* - Following is the season/bundle css styles - */
+
+
+.button-row { 
+    display: flex; /* Arrange buttons horizontally */
+    justify-content: space-around; /* Distribute space around buttons */ 
+    padding-bottom: 10px;
+}
+  
+.icon-button {
+    border: none;          /* Remove default button border */
+    background: none;      /* Make the background transparent */
+    padding: 5px;          /* Add some padding around the icon */
+    cursor: pointer;
+    z-index: 2;
+    background-color: #456864;
+    border: none;          /* Remove default button border */
+    border-radius: 50%;    /* Create the circle shape */
+    width: 40px;           /* Adjust width as needed */
+    height: 40px;          /* Adjust height as needed */
+    display: inline-flex;  /* Center the content within the button */
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;  
+}
+  
+.icon-button img {
+    width: 25px;           /* Adjust icon size as needed */
+    height: 25px;
+}
+
+.icon-button:hover {
+    background-color: #639791;  /* Slightly brighter on hover */
+    transform: scale(1.1);
+}
+
+
+.delete-button {
+    cursor: pointer;
+    margin-top: 40px;
+    margin-bottom: auto;
+
+}
+
+.rotate-animation {
+    animation: spin 0.5s ease-in-out backwards;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.header-container { 
+    align-items: center;
+    /* grid-column: 2 / 3; */
+    position: relative;
+}
+
+.bundle-delete-button {
+    border: none;          /* Remove default button border */
+    background: none;      /* Make the background transparent */
+    padding: 5px;          /* Add some padding around the icon */
+    cursor: pointer;
+    z-index: 2;
+    background-color: transparent;
+    border: none;          /* Remove default button border */
+    border-radius: 50%;    /* Create the circle shape */
+    width: 40px;           /* Adjust width as needed */
+    height: 40px;          /* Adjust height as needed */
+    display: inline-flex;  /* Center the content within the button */
+    align-items: center;
+    justify-content: center;
+    grid-column: 1 / 3;
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.bundle-delete-button:hover {
+    transform: scale(1.1);
+    background-color: #639791;  /* Slightly darker on hover */
+}
+
+.bundle-delete-button img {
+    cursor: pointer;
+    width: 25px;           /* Adjust icon size as needed */
+    height: 25px;
+}
+
+.season-container { 
+    margin-bottom: 5px; 
+    position: relative; /* Enable positioning within the container */
+    /* grid-template-columns: repeat(3, 1fr); */
+    /* display: grid; */
+    padding-bottom: 15px;
+    /* border-bottom: 4mm solid #A9C6B0; */
+}
+
+.season-header {
+    /* grid-column: 2 / 3; */ 
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    text-align: center;  
+    margin: 0 auto;      
+    width: 100%;  
+}
+
+.bundle-container {
+    border-radius: 10px; 
+    display: grid; 
+    flex-direction: column; /* Keep this for internal layout */
+    width: 100%; /* Make the container fill its grid cell */   
+    grid-template-columns: 5% 1fr 5%;
+}
+
+.bundle-heading {
+    font-family: 'Dosis', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    text-align: center;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    grid-column: 2 / 3;
+}
+
+.note-block {
+    font-family: Rubik; 
+    margin-bottom: 0px; 
+    grid-column: 2 / 3;
+    display: grid; 
+    grid-template-columns: 20% 60% 20%;
+}
+
+.note {
+    grid-column: 2 / 3;
+    text-align: center;
+}
+
+.status-dot[data-status="done"]    { background-color: var(--done-color, #228B22); } 
+.status-dot[data-status="upgrade"] { background-color: var(--upgrade-color, #FFA500); } 
+.status-dot[data-status="none"]    { background-color: var(--none-color, #F0F0F0); } 
+
+.status-bar {
+  display: flex; /* Arrange elements horizontally */
+  align-items: center;
+  grid-column: 1 / 1;
+}
+
+.status-dot {
+  width: 20px;
+  height: 20px;
+  margin-left: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  cursor: pointer; /* Indicate it's clickable */    
+}
+
+.div2Topper{
+    align-items: top;
+    display: flex;
+    flex-direction: column;
+    align-items: center;    /* Center vertically */
+    justify-content: center;/* Center horizontally */  
+    padding-top: 20px;
+}
+
+.yearDisplay {
+    font-family: Rubik;
+    margin-top: 10px;
+    font-size: 100%;
+    text-align: center;
+    color: #EDE4E5;
+}
+
+.seasonDisplay {
+    font-family: Rubik;
+    margin-top: 10px;
+    font-size: 70%;
+    text-align: center;
+    color: #EDE4E5;
+}
+
+.logo {
+    font-family: Rubik;
+    font-size:250%;
+    text-align: center;
+    color: #EDE4E5;
+}
+
+p {
+    margin: 0px;
+}
+
+.error-display {
+    left: 50%;
+}
