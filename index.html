@@ -50,32 +50,25 @@
   <div id="popup" class="hidden">
     <div id="quill-editor"></div>
 
-    <button id="submitText">DONE</button>
+    <div class="NewNotePopupButtonBar">
 
-    <select name="Bundle" id="bundle">
-      <option value="Spring Foraging Bundle">Spring Foraging Bundle</option>
-      <option value="Summer Foraging Bundle">Summer Foraging Bundle</option>
-      <option value="Fall Foraging Bundle">Fall Foraging Bundle</option>
-      <option value="Winter Foraging Bundle">Winter Foraging Bundle</option>
-      <option value="Construction Bundle">Construction Bundle</option>
-      <option value="Exotic Foraging Bundle">Exotic Foraging Bundle</option>
-      <option value="Spring Crops Bundle">Spring Crops Bundle</option>
-      <option value="Summer Crops Bundle">Summer Crops Bundle</option>
-      <option value="Fall Crops Bundle">Fall Crops Bundle</option>
-      <option value="Quality Crops Bundle">Quality Crops Bundle</option>
-      <option value="Animal Bundle">Animal Bundle</option>
-      <option value="Artisan Bundle">Artisan Bundle</option>
-      <option value="River Fish Bundle">River Fish Bundle</option>
-      <option value="Lake Fish Bundle">Lake Fish Bundle</option>
-      <option value="Ocean Fish Bundle">Ocean Fish Bundle</option>
-      <option value="Night Fishing Bundle">Night Fishing Bundle</option>
-      <option value="Crab Pot Bundle">Crab Pot Bundle</option>
-      <option value="Specialty Fish Bundle">Specialty Fish Bundle</option>
-      <option value="Blacksmith\'s Bundle">Blacksmith's Bundle</option>
-      <option value="Geologist\'s Bundle">Geologist's Bundle</option>
-      <option value="Adventurer\'s Bundle">Adventurer's Bundle</option>
-      
-    </select>    
+      <button id="submitText">SUBMIT</button>
+
+      <button id="noteSettings" class="Button10">
+        <img src="icons/settings.svg" alt="Settings" title="Settings">
+      </button>
+    </div>
+  </div>
+
+  <div id="popupSettings">
+    Main Category : 
+    <textarea class="mainCategory" id="mainCategory"></textarea>
+
+    Sub Category : 
+    <textarea class="subCategory" id="subCategory"></textarea>
+
+    Formating : 
+    TBD
   </div>
 
   <div id="deleteAll" class="delallhidden">

@@ -215,15 +215,62 @@ body {
     background-color: #e49fad;  /* Slightly brighter on hover */
     transform: scale(1.1);
 }
-    
+
+.Button10 {
+    border: none;          /* Remove default button border */
+    background: none;      /* Make the background transparent */
+    padding: 5px;          /* Add some padding around the icon */
+    cursor: pointer;
+    z-index: 2;
+    background-color: #ffffff;
+    border: none;          /* Remove default button border */
+    border-radius: 50%;    /* Create the circle shape */
+    width: 40px;           /* Adjust width as needed */
+    height: 40px;          /* Adjust height as needed */
+    display: inline-flex;  /* Center the content within the button */
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.Button10:hover {
+    background-color: #929292;  /* Slightly brighter on hover */
+    transform: scale(1.1);
+}
+
+.NewNotePopupButtonBar {
+    padding-top: 5px;
+    display: flex;
+    justify-content: space-between; /* Pushes items to opposite ends */
+}
 
 .hidden { display: none; }
 
-.delallhidden { display: none }
+.delallhidden { display: none; }
+
+.settingHidden { display: none; }
 
 #popup {
     font-family: stardewValleyFont; /* Dosis is now primary */
     font-weight: 300;
+    font-size: 25px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); 
+    z-index: 100; /* Ensure popup is on top */
+}
+
+#popupSettings {
+    font-family: stardewValleyFont; /* Dosis is now primary */
+    font-weight: 300;
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-row-gap: 10px;
     font-size: 25px;
     position: fixed;
     top: 50%;

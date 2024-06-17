@@ -2,6 +2,11 @@ import html
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import uuid, re
+import json
+import time, os
+
+guildFilename = 'files\\guilddata.json'
+notesFilename = 'files\\notesdata.json'
 
 app = Flask(__name__)
 CORS(app)
@@ -9,6 +14,37 @@ CORS(app)
 guildInfo = {"841474628614488086":{'year':'Year 1', 'season':'Summer'}}
 # guildInfo = {}
 notes = {}
+
+def get_data():
+    global notes, guildInfo
+    try:
+        with open(notesFilename, 'r') as f:
+            notes = json.load(f)
+    except FileNotFoundError:
+        notes = {}
+    
+    try:
+        with open(guildFilename, 'r') as f:
+            guildInfo = json.load(f)
+    except FileNotFoundError:
+        guildInfo = {}
+
+    return notes, guildInfo
+
+def load_data(): # For Initial run & check_for_updates() ONLY
+    print("YEAH")
+    global notes, guildInfo
+    try:
+        with open(notesFilename, 'r') as f:
+            notes = json.load(f)
+    except FileNotFoundError:
+        notes = {}
+    
+    try:
+        with open(guildFilename, 'r') as f:
+            guildInfo = json.load(f)
+    except FileNotFoundError:
+        guildInfo = {}
 
 @app.route('/notes', methods=['POST']) # Now Santizes Data
 def create_note():
@@ -270,5 +306,40 @@ def sanitizeData(note_data):
     output = html.escape(note_data)
     return(output)
 
+def save_note_data(data):
+    with open(notesFilename, 'w') as f:
+        json.dump(data, f, indent=4)
+
+def save_guild_data(data):
+    with open(guildFilename, 'w') as f:
+        json.dump(data, f, indent=4)
+
+def check_for_updates():
+    global data
+    last_modified = 0  # Track the last modification time
+    while True:
+        try:
+            current_modified = time.ctime(os.path.getmtime(guildFilename))
+            if current_modified != last_modified:
+                load_data()
+                last_modified = current_modified
+                print("Guild Data updated!")
+        except FileNotFoundError:
+            pass  # Handle if the file is temporarily unavailable
+        try:
+            current_modified = time.ctime(os.path.getmtime(notesFilename))
+            if current_modified != last_modified:
+                load_data()
+                last_modified = current_modified
+                print("Note Data updated!")
+        except FileNotFoundError:
+            pass  # Handle if the file is temporarily unavailable
+        time.sleep(1)  # Check for updates every second
+
 if __name__ == '__main__':
+    load_data()
+    import threading
+    update_thread = threading.Thread(target=check_for_updates)
+    update_thread.daemon = True
+    update_thread.start()
     app.run(debug=True, port=5173)
