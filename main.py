@@ -31,20 +31,10 @@ def get_data():
 
     return notes, guildInfo
 
-def load_data(): # For Initial run & check_for_updates() ONLY
-    print("YEAH")
-    global notes, guildInfo
-    try:
-        with open(notesFilename, 'r') as f:
-            notes = json.load(f)
-    except FileNotFoundError:
-        notes = {}
-    
-    try:
-        with open(guildFilename, 'r') as f:
-            guildInfo = json.load(f)
-    except FileNotFoundError:
-        guildInfo = {}
+def save_guild(data, guildID):
+    global guildInfo
+
+
 
 @app.route('/notes', methods=['POST']) # Now Santizes Data
 def create_note():
@@ -337,9 +327,4 @@ def check_for_updates():
         time.sleep(1)  # Check for updates every second
 
 if __name__ == '__main__':
-    load_data()
-    import threading
-    update_thread = threading.Thread(target=check_for_updates)
-    update_thread.daemon = True
-    update_thread.start()
     app.run(debug=True, port=5173)
