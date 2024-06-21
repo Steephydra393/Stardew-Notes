@@ -4,6 +4,7 @@ from flask_cors import CORS
 import uuid, re
 import json
 import time, os
+from html import unescape  # For HTML entity decoding
 
 guildFilename = 'files\\guilddata.json'
 notesFilename = 'files\\notesdata.json'
@@ -32,20 +33,76 @@ def get_data():
     return notes, guildInfo
 
 def save_guild(data, guildID):
-    global guildInfo
+    get_data()
 
+    global guildInfo  # Ensure guildInfo is defined globally
 
+    try:
+        sanitized_data = {}  # Create a new dictionary for the sanitized guild data
+
+        # Sanitize each item within the guild data individually
+        for key, value in data.items():
+            sanitized_data[key] = json.loads(sanitize_json_string(json.dumps(value)))
+
+        # Update the global guildInfo dictionary with the sanitized data
+        guildInfo[guildID] = sanitized_data 
+
+        with open(guildFilename, 'w') as f:
+            # Write the sanitized data to the file
+            json.dump(sanitized_data, f, indent=6)
+
+        # Fetch and log the cleaned data (optional for debugging)
+        finalnote, finalguild = get_data()
+        print(f"NoteData = {finalnote}\n\n GuildData = {finalguild}")
+
+        return True
+
+    except (json.JSONDecodeError, KeyError) as e:
+        # Handle potential errors (e.g., invalid JSON, missing key) gracefully
+        print(f"Error saving guild data: {e}")
+        return False 
+
+def save_notes(data, guildID):
+    get_data()
+
+    global notes  # Ensure notes is defined globally
+
+    try:
+        sanitized_data = {}  # Create a new dictionary to hold the sanitized notes
+        
+        # Sanitize each note individually
+        for note_id, note_content in data.items():
+            sanitized_data[note_id] = json.loads(sanitize_json_string(json.dumps(note_content)))
+
+        # Update the global notes dictionary with the sanitized data
+        notes[guildID] = sanitized_data 
+
+        with open(notesFilename, 'w') as f:
+            # Write the sanitized data to the file
+            json.dump(sanitized_data, f, indent=6)  
+        
+        # Fetch and log the cleaned data (optional for debugging)
+        finalnote, finalguild = get_data()
+        print(f"NoteData = {finalnote}\n\n GuildData = {finalguild}") 
+
+        return True
+    except (json.JSONDecodeError, KeyError) as e:
+        # Handle potential errors (e.g., invalid JSON, missing key) gracefully
+        print(f"Error saving notes: {e}")
+        return False 
 
 @app.route('/notes', methods=['POST']) # Now Santizes Data
 def create_note():
-    try:
-        note_data = request.get_json()
-        guild_id = note_data.get('guild_id')
-        text = note_data.get('text')
-        category = note_data.get('category')
-        author = note_data.get('author')
+    get_data()
 
-        try:
+    try:
+        note_data = request.get_json() # Retreve the data payload from the website
+        guild_id = note_data.get('guild_id') # Get and Save the user's guild_id
+        text = note_data.get('text') # Get and Save the note's text
+        category = note_data.get('category') # Get and save the category the user has given
+        author = note_data.get('author') # Save the user that submited it
+
+        try: # Try to Sanitize the data
             s_guild_id = sanitizeData(guild_id)
             print("GI fine")
             s_category = sanitizeData(category)
@@ -53,7 +110,7 @@ def create_note():
             print(author)
             s_author = sanitizeData(author)
             print("AUTH fine")
-        except Exception as E:
+        except Exception as E: # Else, if fails, report it to the user's console
             print("Sani")
             print(E)
             return jsonify({'error': 'Sanitation process failed'}), 401
@@ -73,8 +130,11 @@ def create_note():
         print(note_data)
         notes[s_guild_id].append(note_data)
         
-        print("Notes Data After POST request:")
-        print(notes)
+        print(f"Notes Data After POST request: \n|\n|   {notes}\n^Saving...")
+
+        result = save_notes(notes[s_guild_id], s_guild_id)
+        if result != True:
+            return jsonify({'error', 'Unable to save data'}), 500
         
         return jsonify({'message': 'Note created successfully', 'message_id': message_id}), 201
     except:
@@ -82,6 +142,8 @@ def create_note():
 
 @app.route('/guilds/<guildId>')
 def get_guild_info(guildId):
+    get_data()
+    
     if guildId in guildInfo:
         try:
             return jsonify(guildInfo[guildId])
@@ -291,10 +353,40 @@ def get_details(guild_id):
     return jsonify(['error'], ['Yo, whatcha doing? Did you forget to make the function?']), 403
 
 def sanitizeData(note_data):
+    print("WARNING: USING DEPRECATED SANITIZATION METHOD!")
     if note_data == None:
         return(False)
     output = html.escape(note_data)
     return(output)
+
+def sanitize_json_string(json_string):
+    try:
+        # 1. Parse JSON, handling potential decoding issues
+        data = json.loads(json_string, strict=False)  # Allow for some flexibility
+
+        # 2. Recursive Sanitization
+        def sanitize_recursively(data):
+            if isinstance(data, dict):
+                return {k: sanitize_recursively(v) for k, v in data.items() if v is not None}
+            elif isinstance(data, list):
+                return [sanitize_recursively(v) for v in data if v is not None]
+            elif isinstance(data, str):
+                return sanitize_string(data)
+            else:
+                return data
+
+        return json.dumps(sanitize_recursively(data))
+    except json.JSONDecodeError as e:
+        # Handle parsing failure gracefully, return the original string, or log an error.
+        return json_string  
+        
+def sanitize_string(text):
+    # 3. String-Specific Cleaning
+    text = unescape(text)  # Decode HTML entities like &amp;
+    text = text.replace("\u0000", "")  # Remove null bytes
+    # Optionally: Add custom sanitization rules for your specific needs
+
+    return text
 
 def save_note_data(data):
     with open(notesFilename, 'w') as f:
@@ -303,28 +395,6 @@ def save_note_data(data):
 def save_guild_data(data):
     with open(guildFilename, 'w') as f:
         json.dump(data, f, indent=4)
-
-def check_for_updates():
-    global data
-    last_modified = 0  # Track the last modification time
-    while True:
-        try:
-            current_modified = time.ctime(os.path.getmtime(guildFilename))
-            if current_modified != last_modified:
-                load_data()
-                last_modified = current_modified
-                print("Guild Data updated!")
-        except FileNotFoundError:
-            pass  # Handle if the file is temporarily unavailable
-        try:
-            current_modified = time.ctime(os.path.getmtime(notesFilename))
-            if current_modified != last_modified:
-                load_data()
-                last_modified = current_modified
-                print("Note Data updated!")
-        except FileNotFoundError:
-            pass  # Handle if the file is temporarily unavailable
-        time.sleep(1)  # Check for updates every second
 
 if __name__ == '__main__':
     app.run(debug=True, port=5173)
