@@ -57,9 +57,11 @@ $(document).ready(function() {
 
     submitButton.addEventListener('click', () => {
         const text = quill.root.innerHTML; 
-        const selectedCategory = categoryDropdown.value; 
+        //const selectedCategory = categoryDropdown.value; 
+        const selectedCategory = 'bundle'; // TEMP 
         const selectedGuildID = "841474628614488086";
-        console.log(categoryDropdown.value)
+        //console.log(categoryDropdown.value)
+        console.log('Spring Foraging Bundle') // TEMP
         sendDataAPI(text, selectedGuildID, selectedCategory); 
         popup.classList.add('hidden');
         quill.enable(false); 

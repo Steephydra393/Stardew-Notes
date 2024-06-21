@@ -24,20 +24,25 @@ def get_data():
                 notes = json.load(f)
             except:
                 notes = {}
-                save_notes({}, "Glob")
+                save_notes({}, "Glob", True)
     except FileNotFoundError:
         notes = {}
     
     try:
         with open(guildFilename, 'r') as f:
-            guildInfo = json.load(f)
+            try:
+                guildInfo = json.load(f)
+            except:
+                guildInfo = {}
+                save_guild({}, "Glob", True)
     except FileNotFoundError:
         guildInfo = {}
-
+        save_guild({}, "Glob", True)
     return notes, guildInfo
 
-def save_guild(data, guildID):
-    get_data()
+def save_guild(data, guildID, sign=False):
+    if sign == False: # Fixes RecursionError by accidental loop creation
+        get_data()
 
     global guildInfo  # Ensure guildInfo is defined globally
 
@@ -49,7 +54,10 @@ def save_guild(data, guildID):
             sanitized_data[key] = json.loads(sanitize_json_string(json.dumps(value)))
 
         # Update the global guildInfo dictionary with the sanitized data
-        guildInfo[guildID] = sanitized_data 
+        if guildID.upper() != "GLOB":
+            guildInfo[guildID] = sanitized_data 
+        else:
+            guildInfo = sanitized_data
 
         with open(guildFilename, 'w') as f:
             # Write the sanitized data to the file
@@ -66,38 +74,55 @@ def save_guild(data, guildID):
         print(f"Error saving guild data: {e}")
         return False 
 
-def save_notes(data, guildID):
-    get_data()
+def save_notes(data, guildID, sign=False):
+    if sign == False:
+        get_data()
 
-    global notes  # Ensure notes is defined globally
+    global notes
 
     try:
-        sanitized_data = {}  # Create a new dictionary to hold the sanitized notes
-        
-        # Sanitize each note individually
-        for note_id, note_content in data.items():
-            sanitized_data[note_id] = json.loads(sanitize_json_string(json.dumps(note_content)))
+        sanitized_data = []
 
-        # Update the global notes dictionary with the sanitized data
-
+        # Sanitize and update notes
         if guildID.upper() != "GLOB":
-            notes[guildID] = sanitized_data 
-        else:
-            notes = sanitized_data
+            # If guildID is not "GLOB", update just that guild's data
+            # Fetch the existing notes for this guild, or initialize an empty list
+            existing_notes = notes.get(guildID, [])
 
+            # Assuming `data` is now a list of dictionaries, directly sanitize each
+            for note_content in data:
+                sanitized_note = json.loads(
+                    sanitize_json_string(json.dumps(note_content))
+                )
+                sanitized_data.append(sanitized_note) # Append sanitized note to list
+
+            # Append new notes to the existing notes
+            updated_notes = existing_notes + sanitized_data
+            notes[guildID] = updated_notes
+        else:
+            # If guildID is "GLOB", update all notes across guilds
+            for guild_id, guild_notes in data.items(): # Data is a dictionary of lists
+                sanitized_guild_notes = []
+                for note_content in guild_notes: # Iterate over the list of notes
+                    sanitized_note = json.loads(
+                        sanitize_json_string(json.dumps(note_content))
+                    )
+                    sanitized_guild_notes.append(sanitized_note) # Add as a dictionary
+                notes[guild_id] = sanitized_guild_notes
+
+        # Save the entire 'notes' dictionary to the file
         with open(notesFilename, 'w') as f:
-            # Write the sanitized data to the file
-            json.dump(sanitized_data, f, indent=6)  
-        
-        # Fetch and log the cleaned data (optional for debugging)
-        finalnote, finalguild = get_data()
-        print(f"NoteData = {finalnote}\n\n GuildData = {finalguild}") 
+            json.dump(notes, f, indent=6)
+
+        # Optional logging for debugging
+        # finalnote, finalguild = get_data()
+        # print(f"NoteData = {finalnote}\n\n GuildData = {finalguild}")
 
         return True
+
     except (json.JSONDecodeError, KeyError) as e:
-        # Handle potential errors (e.g., invalid JSON, missing key) gracefully
         print(f"Error saving notes: {e}")
-        return False 
+        return False
 
 @app.route('/notes', methods=['POST']) # Now Santizes Data
 def create_note():
@@ -132,15 +157,10 @@ def create_note():
         
         note_data['message_id'] = message_id
         note_data['message_status'] = "none"
-
-        if s_guild_id not in notes:
-            notes[s_guild_id] = []
-        print(note_data)
-        notes[s_guild_id].append(note_data)
         
-        print(f"Notes Data After POST request: \n|\n|   {notes}\n^Saving...")
+        print(f"(localized) Notes Data After POST request: \n|\n|   {note_data}\n^Saving...\n")
 
-        result = save_notes(notes[s_guild_id], s_guild_id)
+        result = save_notes(note_data, s_guild_id)
         if result != True:
             return jsonify({'error', 'Unable to save data'}), 500
         
@@ -237,6 +257,7 @@ def get_notes(guild_id, filter):
             
         }
         for i in notes[guild_id]:
+            print(notes[guild_id])
             category = i['category']
 
             if category in preSend:
@@ -405,4 +426,15 @@ def save_guild_data(data):
         json.dump(data, f, indent=4)
 
 if __name__ == '__main__':
+    try: 
+        with open(guildFilename, 'x') as file: 
+            file.write("") 
+    except FileExistsError: 
+        print(f"The file '{guildFilename}' already exists.") 
+    try: 
+        with open(notesFilename, 'x') as file: 
+            file.write("") 
+    except FileExistsError: 
+        print(f"The file '{notesFilename}' already exists.") 
+
     app.run(debug=True, port=5173)
