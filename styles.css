@@ -250,6 +250,8 @@ body {
 
 .settingHidden { display: none; }
 
+.settingShown { display: grid; }
+
 #popup {
     font-family: stardewValleyFont; /* Dosis is now primary */
     font-weight: 300;
@@ -268,7 +270,6 @@ body {
 #popupSettings {
     font-family: stardewValleyFont; /* Dosis is now primary */
     font-weight: 300;
-    display: grid;
     grid-template-columns: 50% 50%;
     grid-row-gap: 10px;
     font-size: 25px;

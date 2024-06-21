@@ -1,0 +1,5 @@
+# Ignore everything inside the 'files' directory
+files/*
+
+# Ignore the entire node_modules directory
+node_modules/

@@ -20,7 +20,11 @@ def get_data():
     global notes, guildInfo
     try:
         with open(notesFilename, 'r') as f:
-            notes = json.load(f)
+            try:
+                notes = json.load(f)
+            except:
+                notes = {}
+                save_notes({}, "Glob")
     except FileNotFoundError:
         notes = {}
     
@@ -75,7 +79,11 @@ def save_notes(data, guildID):
             sanitized_data[note_id] = json.loads(sanitize_json_string(json.dumps(note_content)))
 
         # Update the global notes dictionary with the sanitized data
-        notes[guildID] = sanitized_data 
+
+        if guildID.upper() != "GLOB":
+            notes[guildID] = sanitized_data 
+        else:
+            notes = sanitized_data
 
         with open(notesFilename, 'w') as f:
             # Write the sanitized data to the file
