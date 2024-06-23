@@ -8,16 +8,18 @@ from html import unescape  # For HTML entity decoding
 
 guildFilename = 'files\\guilddata.json'
 notesFilename = 'files\\notesdata.json'
+uSettingFilename = 'files\\uSettings.json'
 
 app = Flask(__name__)
 CORS(app)
 
 guildInfo = {"841474628614488086":{'year':'Year 1', 'season':'Summer'}}
 # guildInfo = {}
+uSettings = {}
 notes = {}
 
 def get_data():
-    global notes, guildInfo
+    global notes, guildInfo, uSettings
     try:
         with open(notesFilename, 'r') as f:
             try:
@@ -38,6 +40,16 @@ def get_data():
     except FileNotFoundError:
         guildInfo = {}
         save_guild({}, "Glob", True)
+
+    try:
+        with open(uSettingFilename, 'r') as f:
+            try:
+                uSettings = json.load(f)
+            except:
+                uSettings = {}
+    except FileNotFoundError:
+        uSettings = {}
+
     return notes, guildInfo
 
 def save_guild(data, guildID, sign=False):
@@ -75,54 +87,99 @@ def save_guild(data, guildID, sign=False):
         return False 
 
 def save_notes(data, guildID, sign=False):
-    if sign == False:
+    """
+    `save_notes` takes 3 arguments, while 2 are required:
+
+    - `data` = This argument is required and takes a json dictionary
+
+    - `guildID` = This argument is required and takes a guildID or the string `"GLOB"`, When it is set to `"GLOB"`, It will overwrite the entire file. Else, it will simply append a note to the specified guildID.
+    
+    - `sign` = This argument lets the function know if it should update the data before saving, by default it is set to `False` which means it will refresh. The function `get_data()` will change the sign to `True` to avoid an error.
+    """
+    if sign == False: # Fixes RecursionError by accidental loop creation
         get_data()
 
     global notes
 
     try:
-        sanitized_data = []
-
         # Sanitize and update notes
         if guildID.upper() != "GLOB":
             # If guildID is not "GLOB", update just that guild's data
-            # Fetch the existing notes for this guild, or initialize an empty list
-            existing_notes = notes.get(guildID, [])
-
-            # Assuming `data` is now a list of dictionaries, directly sanitize each
-            for note_content in data:
-                sanitized_note = json.loads(
-                    sanitize_json_string(json.dumps(note_content))
-                )
-                sanitized_data.append(sanitized_note) # Append sanitized note to list
-
-            # Append new notes to the existing notes
-            updated_notes = existing_notes + sanitized_data
-            notes[guildID] = updated_notes
+            
+            if guildID not in notes:
+                print("guildID is NOT in Notes")
+                print(notes)
+                notes[guildID] = []
+                print(notes)
+                #Add data to this new list
+                notes[guildID].append(data)
+                print(notes)
+                sendNotes = notes
+                print(sendNotes)
+            else:
+                print("guildID IS in Notes")
+                theList = notes[guildID]
+                print(theList)
+                theList.append(data)
+                print(theList)
+                sendNotes = notes
+                print(sendNotes)
         else:
             # If guildID is "GLOB", update all notes across guilds
-            for guild_id, guild_notes in data.items(): # Data is a dictionary of lists
-                sanitized_guild_notes = []
-                for note_content in guild_notes: # Iterate over the list of notes
-                    sanitized_note = json.loads(
-                        sanitize_json_string(json.dumps(note_content))
-                    )
-                    sanitized_guild_notes.append(sanitized_note) # Add as a dictionary
-                notes[guild_id] = sanitized_guild_notes
+            sendNotes = data
+            print(f"Existing NOTES:\n{notes}\n\nNew NOTES:\n{sendNotes}")
 
         # Save the entire 'notes' dictionary to the file
         with open(notesFilename, 'w') as f:
-            json.dump(notes, f, indent=6)
+            json.dump(sendNotes, f, indent=6)
 
         # Optional logging for debugging
-        # finalnote, finalguild = get_data()
-        # print(f"NoteData = {finalnote}\n\n GuildData = {finalguild}")
+        finalnote, finalguild = get_data()
+        print(f"NoteData = {finalnote}\n\n GuildData = {finalguild}")
 
         return True
 
     except (json.JSONDecodeError, KeyError) as e:
         print(f"Error saving notes: {e}")
         return False
+
+def change_settings(userID, settingID, change, guildID=False, sign=False):
+    """
+    Change user's settings!
+    - userID = The user ID discord gives to the server
+    - settingID = The ID of the setting you are changing (Multi setting changes **NOT** supported, starts at ZERO)
+    - change = The new status of the setting (Bool, String, Integer, Etc.)
+    - guildID = (OPTIONAL) For entire guild setting changing, add the guild's ID here.
+    - sign = (OPTIONAL) This argument lets the function know if it should update the data before saving, by default it is set to `False` which means it will refresh. The function `get_data()` will change the sign to `True` to avoid an error.
+    """
+    global uSettings
+
+    if sign==False:
+        get_data() # Refresh data if supported
+
+    if guildID==False:
+        print("1) FALSE")
+        if userID in uSettings["user"]:
+            print("2) TRUE")
+            ouSettings = uSettings["user"][userID]
+            if type(ouSettings) == list:
+                print("3) TRUE")
+                if len(ouSettings) == 5:
+                    print("4) TRUE")
+                    try:
+                        ouSettings[settingID] = change
+                        # HERE
+                    except Exception as E:
+                        print(f"#) ERROR - try & except error - {E}")
+                else:
+                    print("4) FALSE - invalid amount of settings")
+            else:
+                print(f"3) FALSE - found incorrect file type? {type(ouSettings)}")
+
+        else:
+            print("2) FALSE - user not in file")
+    else:
+        print("Unsupported, TO BE ADDED")
 
 @app.route('/notes', methods=['POST']) # Now Santizes Data
 def create_note():
@@ -207,6 +264,7 @@ def create_guild_info():
 
 @app.route('/notes/<guild_id>/<filter>/')
 def get_notes(guild_id, filter):
+    get_data()
     print(guild_id, filter)
     # {'text': '<p>Test</p>', 'guild_id': '841474628614488086', 'category': '0', 'message_id': '54553afa-6c0f-4ceb-9f02-6cd9244d3fe5', 'message_status': None}
     filters = ['bundle', 'season', 'location']
@@ -304,7 +362,11 @@ def update_status(guild_id, message_id):
                 if note['message_id'] == message_id:
                     note['message_status'] = new_status
                     print(notes)
-                    return jsonify({'message': 'Message status updated successfully'}), 200  # Use 200 OK
+                    status = save_notes(notes, "GLOB")
+                    if status == True:
+                        return jsonify({'message': 'Message status updated successfully'}), 200  # Use 200 OK
+                    else:
+                        return jsonify({'error': 'Unable to save, Got False from function'}), 422
             return jsonify({'error': 'Message not found in the guild'}), 404
         else:
             return jsonify({'error': 'Guild not found'}), 404 
@@ -333,8 +395,12 @@ def delete_note(guild_id, message_id):
 @app.route('/deleteAllNotes/<guild_id>')
 def delete_notes(guild_id):
     if guild_id in notes:
-         del notes[guild_id]
-         return jsonify(['message', 'All notes deleted successfully']), 200
+        del notes[guild_id]
+        status = save_notes(notes, "GLOB")
+        if status != False:
+            return jsonify(['message', 'All notes deleted successfully']), 200
+        else:
+            return jsonify(['error', 'Unable to save deleted notes']), 500
     return jsonify(['error', 'Guild not found']), 404
 
 @app.route('/deleteBundle/<guildId>/<bundleName>')

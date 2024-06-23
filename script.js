@@ -3,6 +3,7 @@ $(document).ready(function() {
     const openThePopupButton = document.getElementById('openThePopup');
     const popup = document.getElementById('popup');
     const submitButton = document.getElementById('submitText');
+    const checkButton = document.getElementById('closePopup');
     const div3 = document.getElementById('div3');
     const categoryDropdown = document.getElementById('bundle');
     const openDeleteAllButton = document.getElementById('openDeleteAllButton')
@@ -16,7 +17,7 @@ $(document).ready(function() {
     const yearDiv = document.getElementById('yearDisplay');
     const seasonDiv = document.getElementById('seasonDisplay');
 
-    let quill = new Quill('#quill-editor', { theme: 'snow' }); 
+    let quill = new Quill('#quill-editor', { theme: 'bubble' }); 
 
     statusDots.forEach(dot => {
         const currentStatus = dot.dataset.status;
@@ -56,15 +57,22 @@ $(document).ready(function() {
     }); 
 
     submitButton.addEventListener('click', () => {
-        const text = quill.root.innerHTML; 
-        //const selectedCategory = categoryDropdown.value; 
-        const selectedCategory = 'bundle'; // TEMP 
-        const selectedGuildID = "841474628614488086";
-        //console.log(categoryDropdown.value)
-        console.log('Spring Foraging Bundle') // TEMP
-        sendDataAPI(text, selectedGuildID, selectedCategory); 
-        popup.classList.add('hidden');
-        quill.enable(false); 
+      const text = quill.root.innerHTML; 
+      //const selectedCategory = categoryDropdown.value; 
+      const selectedCategory = 'Spring Foraging Bundle'; // TEMP 
+      const selectedGuildID = "841474628614488086";
+      //console.log(categoryDropdown.value)
+      console.log('Spring Foraging Bundle') // TEMP
+      sendDataAPI(text, selectedGuildID, selectedCategory); 
+      quill.setText('');
+      popup.classList.add('hidden');
+      quill.enable(false); 
+    });
+
+    checkButton.addEventListener('click', () => {
+      quill.setText('');
+      popup.classList.add('hidden');
+      quill.enable(false); 
     });
 
     function addListeners() {
@@ -265,7 +273,7 @@ $(document).ready(function() {
             const errorDisplay = document.createElement('div'); // Creates a div to hold the season and notes
             errorDisplay.classList.add('error-display'); // Adds the class `error-display` to the new div
         
-            const errorMes = `Error: - ${error.message} - Check console for more information - From P.1 Catch Error displayNotes`
+            const errorMes = `You dont apear to have any notes, or a strange error has appeared`
 
             const bundleHeading = document.createElement('h4'); 
             bundleHeading.classList.add('error-display'); 
@@ -282,7 +290,7 @@ $(document).ready(function() {
         // const errorDisplay = document.createElement('div'); // Creates a div to hold the season and notes
         // errorDisplay.classList.add('error-display'); // Adds the class `error-display` to the new div
 
-        const errorMes = `Error: - ${error.message} - Check console for more information - From P.2 Catch Error displayNotes`
+        const errorMes = `You dont apear to have any notes, or a strange error has appeared`
         
         const bundleHeading = document.createElement('h4'); 
         bundleHeading.classList.add('error-display'); 
@@ -363,20 +371,16 @@ $(document).ready(function() {
             seasonDiv.append(seasonDisplay);
         })
             .catch(error => {
-            yearDiv.innerHTML = '';
-            seasonDiv.innerHTML = '';
+            yearDiv.innerHTML = '<p>Year </p>';
+            seasonDiv.innerHTML = '<p>Season </p>';
       
-            const errorDisplay = document.createElement('p');
-            
-            // Distinguish between different error types
-            if (error.message.startsWith("Server error:")) {
-              errorDisplay.textContent = "Server Error: Unable to fetch guild data.";
-            } else if (error.message === "Failed to fetch") {
-              errorDisplay.textContent = "Network Error: Unable to contact the server.";
-            } else {
-              errorDisplay.textContent = "An error occurred while fetching guild data.";
-              console.error("Error fetching Guild:", error); // Log full error details to console
-            }
+            const errorDisplay = document.createElement('img');
+
+            errorDisplay.src = "icons/error.svg";
+            errorDisplay.alt = "An error has appeared";
+            errorDisplay.title = "Error Display";
+
+            console.error("Error fetching Guild:", error); // Log full error details to console
       
             yearDiv.append(errorDisplay);
             seasonDiv.append(errorDisplay.cloneNode(true)); // Clone to show in both divs

@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.snow.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script> 
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.bubble.css" rel="stylesheet" />
   </head>
   <body>
     <div class="parent">
@@ -42,7 +43,7 @@
         </div>
 
         <div class="div3" id="div3">
-          An error occured, Check console
+          No notes found, and no error has appeared
         </div>
 
     </div>
@@ -52,7 +53,13 @@
 
     <div class="NewNotePopupButtonBar">
 
-      <button id="submitText">SUBMIT</button>
+      <button id="submitText" class="Button10">
+        <img src="icons/check.svg" alt="Submit" title="Submit"> 
+      </button>
+
+      <button id="closePopup" class="Button11">
+        <img src="icons/smallClose.svg" alt="Close" title="Close"> 
+      </button>
 
       <button id="noteSettings" class="Button10">
         <img src="icons/settings.svg" alt="Settings" title="Settings">
