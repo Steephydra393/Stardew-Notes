@@ -5,6 +5,8 @@ import uuid, re
 import json
 import time, os
 from html import unescape  # For HTML entity decoding
+import time
+import datetime
 
 guildFilename = 'files\\guilddata.json'
 notesFilename = 'files\\notesdata.json'
@@ -17,6 +19,7 @@ guildInfo = {"841474628614488086":{'year':'Year 1', 'season':'Summer'}}
 # guildInfo = {}
 uSettings = {}
 notes = {}
+dSettings = [True, False, 100, 12]
 
 def get_data():
     global notes, guildInfo, uSettings
@@ -46,6 +49,11 @@ def get_data():
             try:
                 uSettings = json.load(f)
             except:
+                out_file = open(uSettingFilename, "w")
+
+                json.dump({}, out_file, indent = 6)
+
+                out_file.close()
                 uSettings = {}
     except FileNotFoundError:
         uSettings = {}
@@ -143,43 +151,88 @@ def save_notes(data, guildID, sign=False):
         print(f"Error saving notes: {e}")
         return False
 
-def change_settings(userID, settingID, change, guildID=False, sign=False):
+def add_user(userID, initial_settings, uSettingFilename="user_settings.json"):
+    """Adds a new user with initial settings to the JSON settings file.
+
+    Args:
+        userID: The Discord user ID (string).
+        initial_settings: A list of initial setting values for the user.
+        uSettingFilename: The name of the JSON settings file (defaults to "user_settings.json").
     """
-    Change user's settings!
-    - userID = The user ID discord gives to the server
-    - settingID = The ID of the setting you are changing (Multi setting changes **NOT** supported, starts at ZERO)
-    - change = The new status of the setting (Bool, String, Integer, Etc.)
-    - guildID = (OPTIONAL) For entire guild setting changing, add the guild's ID here.
-    - sign = (OPTIONAL) This argument lets the function know if it should update the data before saving, by default it is set to `False` which means it will refresh. The function `get_data()` will change the sign to `True` to avoid an error.
+
+    global uSettings  # Make sure to have this if uSettings is a global variable
+
+    try:
+        # Load existing data from the file
+        with open(uSettingFilename, "r") as f:
+            uSettings = json.load(f)
+    except FileNotFoundError:
+        # If the file doesn't exist, initialize uSettings as an empty dictionary
+        uSettings = {}
+        
+    # Update User Data
+    if "user" not in uSettings:
+        uSettings["user"] = {}
+    uSettings["user"][userID] = initial_settings
+    print("New user created in user_settings.json!")
+
+    # Save the updated data back to the file
+    with open(uSettingFilename, "w") as f:
+        json.dump(uSettings, f, indent=4)
+
+def change_settings(userID, settingID, change, guildID=False, sign=False):
+    """Change user or guild settings.
+
+    Args:
+        userID: The Discord user ID.
+        settingID: The ID of the setting to change (0-based index).
+        change: The new value for the setting.
+        guildID: (Optional) The Discord guild ID if changing guild settings.
+        sign: (Optional) If True, indicates data should be updated before saving.
+
+    Returns:
+        None
     """
     global uSettings
 
-    if sign==False:
-        get_data() # Refresh data if supported
+    if not sign:
+        get_data()  # Refresh data if sign is False (default)
 
-    if guildID==False:
-        print("1) FALSE")
-        if userID in uSettings["user"]:
-            print("2) TRUE")
-            ouSettings = uSettings["user"][userID]
-            if type(ouSettings) == list:
-                print("3) TRUE")
-                if len(ouSettings) == 5:
-                    print("4) TRUE")
+    if not guildID:
+        if userID in uSettings.get("user", {}):  # Use .get to safely access "user"
+            user_settings = uSettings["user"][userID]
+            if isinstance(user_settings, list) and len(user_settings) >= settingID + 1:
+                try:
+                    print(user_settings)
+                    user_settings[settingID] = change
+                    print(user_settings)
                     try:
-                        ouSettings[settingID] = change
-                        # HERE
-                    except Exception as E:
-                        print(f"#) ERROR - try & except error - {E}")
-                else:
-                    print("4) FALSE - invalid amount of settings")
+                        with open(uSettingFilename, "w") as f:
+                            json.dump(uSettings, f, indent=4)
+                    except: 
+                        return False
+                    if not sign:
+                        get_data()
+                    print(f"Setting updated and saved successfully! {uSettings}")
+                    return True
+                except Exception as e:
+                    print(f"Error updating setting: {e}")
             else:
-                print(f"3) FALSE - found incorrect file type? {type(ouSettings)}")
-
+                print("Invalid setting ID or incorrect user settings format.")
+                # Rewrite user's settings:
         else:
-            print("2) FALSE - user not in file")
+            print("User not found in settings.")
+            dSettings[settingID] = change
+            print(dSettings)
+            try:
+                add_user(userID, dSettings, uSettingFilename)
+            except:
+                return False
+            return True
     else:
-        print("Unsupported, TO BE ADDED")
+        # ... (implementation for guild settings)
+        print("Guild setting changes are not yet implemented.")  # Placeholder
+        return False
 
 @app.route('/notes', methods=['POST']) # Now Santizes Data
 def create_note():
@@ -214,6 +267,9 @@ def create_note():
         
         note_data['message_id'] = message_id
         note_data['message_status'] = "none"
+        presentDate = datetime.datetime.now()
+        unix_timestamp = datetime.datetime.timestamp(presentDate)*1000
+        note_data['time_stamp'] = str(unix_timestamp)
         
         print(f"(localized) Notes Data After POST request: \n|\n|   {note_data}\n^Saving...\n")
 
@@ -265,6 +321,9 @@ def create_guild_info():
 @app.route('/notes/<guild_id>/<filter>/')
 def get_notes(guild_id, filter):
     get_data()
+
+    
+
     print(guild_id, filter)
     # {'text': '<p>Test</p>', 'guild_id': '841474628614488086', 'category': '0', 'message_id': '54553afa-6c0f-4ceb-9f02-6cd9244d3fe5', 'message_status': None}
     filters = ['bundle', 'season', 'location']
@@ -447,6 +506,105 @@ def get_details(guild_id):
     print(guild_id)
     return jsonify(['error'], ['Yo, whatcha doing? Did you forget to make the function?']), 403
 
+@app.route('/settings/<userID>')
+def get_settings(userID):
+    """Fetches user settings or adds a new user with default settings.
+
+    Args:
+        userID: The user ID to retrieve settings for.
+
+    Returns:
+        A JSON response containing the user's settings if found, or a message indicating a new user was added.
+    """
+
+    global uSettings
+    get_data()  # Refresh data collection
+
+    if userID in uSettings.get("user", {}):  # Check if userID is in the "user" dictionary
+        print("1) True")
+        print(uSettings["user"][userID])
+        return jsonify(uSettings["user"][userID])  # Return settings as JSON
+    else:
+        print("1) False")
+        # Create the user only if they don't exist.
+        add_user(userID, dSettings, uSettingFilename)
+        return jsonify(uSettings["user"][userID])
+
+@app.route('/settings/change/<userID>/<settingID>/<change>')
+def updateSettings(userID, settingID, change):
+    global uSettings
+    get_data() # Refresh data
+
+    if userID in uSettings.get("user", {}):
+        print("1) True")
+        result = change_settings(userID, int(settingID), change)
+        if result != False:
+            return jsonify({'message': 'Setting change applied'}), 200 # Use 200 OK
+        else:
+            return jsonify({'error': 'Unable to save change, Got False from function'}), 400 # Use 400 BAD REQUEST
+    else:
+        print("1) False")
+        result = change_settings(userID, int(settingID), change)
+        if result == "NEW":
+            return jsonify({'message': 'Setting change applied + Created user profile'}), 201  # Use 201 CREATED
+        elif result == True:
+            return jsonify({'message': 'Setting change applied. Expected user create profile return'}), 200  # Use 200 OK 
+        else:
+            return jsonify({'error': 'Unable to save change, Got False from function'}), 400 # Use 400 BAD REQUEST
+        # Create the user only if they don't exist + setting change.
+
+@app.route('/beta/notes/<guild_id>/<user_id>/')
+def beta_get_notes(guild_id, user_id):
+    print("beta_get_notes:")
+    get_data()
+    if user_id in uSettings.get("user", {}):
+        print("1) True")
+    else:
+        print("1) False, creating...")
+        add_user(userID=user_id, initial_settings=dSettings, uSettingFilename=uSettingFilename)
+        if user_id not in uSettings.get("user", {}):
+            return jsonify(['error', 'Issue revolving creating the user']), 400
+    
+    headers = []
+    subheaders = []
+
+    for i in notes[guild_id]:
+        if i["header"] not in headers:
+            headers.append(i["category"])
+        else:
+            pass
+        if i["subheader"] not in subheaders:
+            subheaders.append(i["subheader"])
+        else:
+            pass
+    
+    try:
+        settings = uSettings.get("user", {})[user_id]
+    except:
+        print("ew")
+
+    if settings[6] == "Status": # Sort by status
+        none = []
+        done = []
+        upgrade = []
+
+        for i in notes[guild_id]:
+            if i["message_status"] == "none":
+                none.append(i["header"])
+            elif i["message_status"] == "done":
+                done.append(i["header"])
+            elif i["message_status"] == "upgrade":
+                upgrade.append(i["header"])
+        
+        if settings[7] == "NONE":
+    elif settings[6] == "Date": # Sort by date
+        if settings[7] == "RTO": # Recent to Oldest
+            print("Here")
+        else:
+            print("Here")
+    else:
+        return jsonify(['error', 'Issue revolving finding sorting settings']), 400
+
 def sanitizeData(note_data):
     print("WARNING: USING DEPRECATED SANITIZATION METHOD!")
     if note_data == None:
@@ -455,6 +613,8 @@ def sanitizeData(note_data):
     return(output)
 
 def sanitize_json_string(json_string):
+
+
     try:
         # 1. Parse JSON, handling potential decoding issues
         data = json.loads(json_string, strict=False)  # Allow for some flexibility
@@ -502,5 +662,10 @@ if __name__ == '__main__':
             file.write("") 
     except FileExistsError: 
         print(f"The file '{notesFilename}' already exists.") 
+    try: 
+        with open(uSettingFilename, 'x') as file: 
+            file.write("") 
+    except FileExistsError: 
+        print(f"The file '{uSettingFilename}' already exists.") 
 
     app.run(debug=True, port=5173)

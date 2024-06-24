@@ -16,6 +16,9 @@ $(document).ready(function() {
     const statusOrder = ['done', 'upgrade', 'none'];
     const yearDiv = document.getElementById('yearDisplay');
     const seasonDiv = document.getElementById('seasonDisplay');
+    const settingsOpen = document.getElementById('openSettingsButton');
+    const settingsPopup = document.getElementById('uSettings');
+    const settingsClose = document.getElementById('uSettingClose');
 
     let quill = new Quill('#quill-editor', { theme: 'bubble' }); 
 
@@ -25,7 +28,44 @@ $(document).ready(function() {
     });
 
     openDeleteAllButton.addEventListener('click', () => {
-    DeleteAllPage.classList.remove('delallhidden');
+      DeleteAllPage.classList.remove('delallhidden');
+    })
+
+    settingsOpen.addEventListener('click', () => {
+      settingsPopup.classList.remove('uSettingsHidden');
+      const userID = "1209769296394326110"; // Replace with the actual user ID
+      let cSettings; // Declare cSettings outside to make it accessible
+  
+      fetch(`http://127.0.0.1:5173/settings/${userID}`, { method: 'GET' })
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error(`Failed to get current settings: ${response.status}`);
+              }
+              return response.json();
+          })
+          .then(settings => {
+              cSettings = settings;
+              console.log(`Settings ${cSettings} collected successfully.`);
+  
+              // Remove existing div elements (while preserving other content)
+              const divsToRemove = settingsPopup.querySelectorAll('div');  // Select all div elements
+              divsToRemove.forEach(div => div.remove()); // Remove each div
+  
+              // Create input elements inside the .then() block
+              const headingTextSize = createNumberInput(cSettings[0], 0, userID, 'Header Text Size:');
+              const subHeadingTextSize = createNumberInput(cSettings[1], 1, userID, 'Subheading Text Size:');
+  
+              settingsPopup.appendChild(headingTextSize);
+              settingsPopup.appendChild(subHeadingTextSize);
+          })
+          .catch(error => {
+              console.error(error.message);
+              // Optionally display an error message to the user
+          });
+    });
+
+    settingsClose.addEventListener('click', () => {
+      settingsPopup.classList.add('uSettingsHidden');
     })
 
     closeDeleteAllButton.addEventListener('click', () => {
@@ -310,6 +350,41 @@ $(document).ready(function() {
           case 'none': return 'No Plans';
           default: return 'Unknown Status';
         }
+    }
+
+    function createNumberInput(defaultValue, settingID, userID, text) {
+      const inputContainer = document.createElement('div');
+
+      const theText = document.createElement('p')
+      theText.innerHTML = text
+
+      inputContainer.appendChild(theText);
+      
+      const numberInput = document.createElement('input');
+      numberInput.type = 'number';
+      numberInput.id = `setting-${settingID}`; // Unique ID for each setting
+      numberInput.value = defaultValue;
+      inputContainer.appendChild(numberInput);
+      
+      const updateButton = document.createElement('button');
+      updateButton.textContent = 'Update';
+      updateButton.onclick = function() {
+          const newValue = numberInput.value; // Get the new value from the input
+          fetch(`http://127.0.0.1:5173/settings/change/${userID}/${settingID}/${newValue}`, {
+              method: 'GET' // Or 'PUT', depending on your API
+          })
+          .then(response => {
+              if (response.ok) {
+                  console.log(`Setting ${settingID} updatedsuccessfully.`);
+                  // Optionally, update the UI to reflect the new setting
+              } else {
+                  console.error(`Failed to update setting ${settingID}.`);
+              }
+          });
+      };
+      inputContainer.appendChild(updateButton);
+  
+      return inputContainer;
     }
 
     function updateNoteStatusInBackend(guild_id, noteId, newStatus) {

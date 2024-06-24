@@ -273,9 +273,28 @@ body {
 
 .delallhidden { display: none; }
 
-.settingHidden { display: none; }
+.IsettingHidden { display: none; }
 
 .settingShown { display: grid; }
+
+.uSettingsHidden { display: none; }
+
+#uSettings {
+    position: fixed;
+    min-height: 50%;
+    min-width: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding-top: 13px;
+    padding-left: 13px;
+    padding-right: 13px;
+    padding-bottom: 17px;
+    border-radius: 7px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); 
+    z-index: 100; /* Ensure popup is on top */
+}
 
 #popup {
     font-family: stardewValleyFont; /* Dosis is now primary */
